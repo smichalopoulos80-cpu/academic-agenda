@@ -2,7 +2,7 @@
 <html lang="el">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Academic Agenda 2026–2027 · v3.16 30-DAY SMART VIEW + BIDIRECTIONAL AUTO SYNC</title>
+<title>Academic Agenda 2026–2027 · v3.17 30-DAY SMART VIEW + BIDIRECTIONAL AUTO SYNC</title>
 <style>
 :root{--navy:#17365d;--blue:#e8f1fb;--green:#e8f5e9;--amber:#fff4d6;--red:#fde8e7;--grey:#f3f5f7;--ink:#203040;--muted:#6b7785;--line:#dfe5ea}
 *{box-sizing:border-box} body{margin:0;font-family:Segoe UI,Arial,sans-serif;background:#f5f7fa;color:var(--ink)}
@@ -61,7 +61,7 @@ header{padding:14px 12px;align-items:flex-start;flex-direction:column}header>div
 <button class="btn primary" onclick="exportBackup()">💾 Backup</button>
 <button class="btn primary" onclick="document.getElementById('backupFile').click()">📂 Restore</button>
 <button class="btn primary" onclick="openArchive()">✓ Ολοκληρωμένα</button>
-<button class="btn primary" onclick="exportTrackerCSV()">→ Export για Tracker</button>
+<button class="btn primary" onclick="openTrackerExport()">→ Export για Tracker</button>
 
 <button class="btn primary" onclick="openDayView()">📅 Προβολή ημερών</button>
 <button class="btn primary" onclick="printWeek()">🖨 Εκτύπωση εβδομάδας</button>
@@ -130,6 +130,22 @@ header{padding:14px 12px;align-items:flex-start;flex-direction:column}header>div
     <button class="btn dark" onclick="confirmResetAgenda()">Επαναφορά αρχικών</button>
   </div>
 </div>
+</dialog>
+
+<dialog id="trackerExportDlg">
+ <div class="modalhead">→ Export για Tracker</div>
+ <div style="padding:20px">
+   <div style="font-weight:750;font-size:16px;margin-bottom:12px">Επίλεξε περίοδο εξαγωγής</div>
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+     <label>Από ημερομηνία<br><input id="trackerFrom" type="date" style="width:100%;margin-top:5px"></label>
+     <label>Έως ημερομηνία<br><input id="trackerTo" type="date" style="width:100%;margin-top:5px"></label>
+   </div>
+   <div id="trackerExportInfo" style="color:#6b7785;line-height:1.45;margin-bottom:16px"></div>
+   <div style="display:flex;justify-content:flex-end;gap:8px">
+     <button class="btn soft" onclick="document.getElementById('trackerExportDlg').close()">Άκυρο</button>
+     <button class="btn primary" onclick="exportTrackerRange()">Εξαγωγή</button>
+   </div>
+ </div>
 </dialog>
 
 <dialog id="confirmDlg">
@@ -627,12 +643,42 @@ function markPerformed(id){
 function excelEsc(v){
  return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-function exportTrackerCSV(){
+function trackerRecordDate(a){
+ // New records use performedDate. Older completed records may only have the original agenda date.
+ if(a.performedDate)return a.performedDate;
+ if(a.date)return a.date;
+ if(a.performedAt){
+   const d=new Date(a.performedAt);
+   if(!isNaN(d))return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+ }
+ return '';
+}
+function openTrackerExport(){
  if(!performed.length){alert('Δεν υπάρχουν ολοκληρωμένες δραστηριότητες για εξαγωγή προς το Tracker.');return;}
+ const dated=performed.map(a=>trackerRecordDate(a)).filter(Boolean).sort();
+ const from=document.getElementById('trackerFrom'),to=document.getElementById('trackerTo');
+ from.value=dated.length?dated[0]:'';
+ to.value=dated.length?dated[dated.length-1]:'';
+ document.getElementById('trackerExportInfo').textContent=`Υπάρχουν ${performed.length} ολοκληρωμένες εγγραφές. Θα εξαχθούν μόνο όσες ανήκουν στο διάστημα που θα επιλέξεις.`;
+ document.getElementById('trackerExportDlg').showModal();
+}
+function exportTrackerRange(){
+ const from=document.getElementById('trackerFrom').value;
+ const to=document.getElementById('trackerTo').value;
+ if(!from||!to){alert('Επίλεξε ημερομηνία Από και Έως.');return;}
+ if(from>to){alert('Η ημερομηνία «Από» δεν μπορεί να είναι μετά την ημερομηνία «Έως».');return;}
+
+ const selected=performed.filter(a=>{
+   const d=trackerRecordDate(a);
+   return d && d>=from && d<=to;
+ }).sort((a,b)=>trackerRecordDate(a).localeCompare(trackerRecordDate(b)) || String(a.time||'').localeCompare(String(b.time||'')));
+
+ if(!selected.length){alert('Δεν υπάρχουν ολοκληρωμένες εγγραφές σε αυτό το διάστημα.');return;}
+
  const headers=['Agenda ID','Ημερομηνία Πραγματοποίησης','Τίτλος','Κατηγορία','Ώρα','Πού / Με ποιον','Τι προετοιμάστηκε','Project ID','Κατάσταση'];
- const rows=performed.map(a=>[
+ const rows=selected.map(a=>[
    a.id||'',
-   a.performedDate||'',
+   trackerRecordDate(a),
    a.title||'',
    (a.type && a.type!=='undefined')?a.type:'Άλλο',
    a.time||'',
@@ -641,16 +687,21 @@ function exportTrackerCSV(){
    a.projectId||'',
    'Πραγματοποιήθηκε'
  ]);
- const tr=r=>'<tr>'+r.map(v=>'<td>'+excelEsc(v)+'</td>').join('')+'</tr>';
+ const tr=r=>'<tr>'+r.map((v,i)=>'<td'+(i===1?' style="mso-number-format:\\@;"':'')+'>'+excelEsc(v)+'</td>').join('')+'</tr>';
  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8">
  <style>table{border-collapse:collapse;font-family:Calibri,Arial,sans-serif;font-size:11pt}th,td{border:1px solid #b7c9dd;padding:6px 9px}th{background:#1f4e78;color:white;font-weight:bold}</style>
  </head><body><table><thead>${'<tr>'+headers.map(h=>'<th>'+excelEsc(h)+'</th>').join('')+'</tr>'}</thead>
  <tbody>${rows.map(tr).join('')}</tbody></table></body></html>`;
  const blob=new Blob(['\uFEFF',html],{type:'application/vnd.ms-excel;charset=utf-8'});
  const url=URL.createObjectURL(blob), link=document.createElement('a');
- link.href=url;link.download='Academic_Agenda_to_Tracker.xls';
+ link.href=url;link.download=`Academic_Agenda_to_Tracker_${from}_to_${to}.xls`;
  document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+ document.getElementById('trackerExportDlg').close();
+ alert(`Εξήχθησαν ${selected.length} εγγραφές για το διάστημα ${from} έως ${to}.`);
 }
+// Backward-compatible alias in case an older cached UI calls the old function.
+function exportTrackerCSV(){openTrackerExport();}
+
 function exportBackup(){
  const payload={
    app:"Academic Agenda",
