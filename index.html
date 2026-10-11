@@ -2,7 +2,7 @@
 <html lang="el">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Academic Agenda 2026–2027 · v3.17 30-DAY SMART VIEW + BIDIRECTIONAL AUTO SYNC</title>
+<title>Academic Agenda 2026–2027 · v3.18 · Επαναλήψεις και καταστάσεις</title>
 <style>
 :root{--navy:#17365d;--blue:#e8f1fb;--green:#e8f5e9;--amber:#fff4d6;--red:#fde8e7;--grey:#f3f5f7;--ink:#203040;--muted:#6b7785;--line:#dfe5ea}
 *{box-sizing:border-box} body{margin:0;font-family:Segoe UI,Arial,sans-serif;background:#f5f7fa;color:var(--ink)}
@@ -10,6 +10,7 @@ header{background:var(--navy);color:#fff;padding:18px 26px;display:flex;align-it
 h1{margin:0;font-size:23px}.sub{opacity:.82;font-size:13px;margin-top:4px}
 button,select,input,textarea{font:inherit}.btn{border:0;border-radius:9px;padding:9px 13px;cursor:pointer;font-weight:650}
 .btn.primary{background:#fff;color:var(--navy)}.btn.dark{background:var(--navy);color:#fff}.btn.soft{background:#edf2f7;color:#25364a}
+.event-actions{display:flex;gap:6px;margin-top:7px}.btn.event-action{min-width:36px;min-height:36px;padding:5px;font-size:20px;line-height:1}.event-action:focus-visible{outline:2px solid var(--navy);outline-offset:2px}
 main{max-width:1500px;margin:auto;padding:20px}
 .focus{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
 .focus-card{background:#fff;border-radius:14px;padding:15px 17px;border:1px solid var(--line);box-shadow:0 2px 9px #0000000a}
@@ -55,7 +56,7 @@ header{padding:14px 12px;align-items:flex-start;flex-direction:column}header>div
 }
 </style></head>
 <body>
-<header><div><h1>Academic Agenda</h1><div class="sub">Χειμερινό εξάμηνο 2026–2027 · Η εβδομάδα μου</div></div>
+<header><div><h1>Academic Agenda</h1><div class="sub">Χειμερινό εξάμηνο 2026–2027 · Η εβδομάδα μου · v3.18</div></div>
 <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
 <button class="btn primary" onclick="openCloudDlg()">☁ Sync</button>
 <button class="btn primary" onclick="exportBackup()">💾 Backup</button>
@@ -68,6 +69,7 @@ header{padding:14px 12px;align-items:flex-start;flex-direction:column}header>div
 <input id="backupFile" type="file" accept=".json,application/json" hidden onchange="importBackup(event)">
 </div></header>
 <main>
+<div id="syncNotice" role="status" aria-live="polite" style="font-size:13px;padding:8px 0;color:#556270"></div>
 <section class="focus" id="focus"></section>
 <div class="toolbar"><div class="nav"><button class="btn soft" onclick="moveWeek(-1)">‹</button><button class="btn soft" id="todayBtn" onclick="goToday()">Σήμερα</button><button class="btn soft" onclick="moveWeek(1)">›</button></div><div class="week-title" id="weekTitle"></div><button class="btn dark" onclick="openNew()">＋ Προσθήκη</button></div>
 <section class="calendar" id="calendar"></section>
@@ -155,7 +157,7 @@ header{padding:14px 12px;align-items:flex-start;flex-direction:column}header>div
   <div style="color:#6b7785;margin-bottom:18px">Να επιβεβαιωθεί ότι η δραστηριότητα <b>πραγματοποιήθηκε</b> και να μεταφερθεί στις Ολοκληρωμένες εργασίες;</div>
   <div style="display:flex;justify-content:flex-end;gap:8px">
     <button class="btn soft" onclick="cancelReady()">↶ Αναίρεση</button>
-    <button class="btn dark" onclick="confirmReady()" onclick="confirmReady()">✓ Επιβεβαίωση</button>
+    <button class="btn dark" onclick="confirmReady()">✓ Επιβεβαίωση</button>
   </div>
 </div>
 </dialog>
@@ -192,8 +194,19 @@ header{padding:14px 12px;align-items:flex-start;flex-direction:column}header>div
 <input type="hidden" id="eid">
 <label>Ημερομηνία<input id="date" type="date" required></label><label>Ώρα<input id="time" placeholder="π.χ. 11:00–12:00"></label>
 <label class="full">Τίτλος<input id="title" required></label><label>Κατηγορία<select id="type"><option value="teaching">Προπτυχιακό μάθημα</option><option value="postgrad">ΠΜΣ / ΚΕΔΙΒΙΜ</option><option value="meeting">Συνάντηση / Ραντεβού</option><option value="conference">Συνέδρια</option><option value="party">Πάρτι</option><option value="schooltrip">Σχολική εκδρομή</option><option value="parents">Ενημέρωση γονέων</option><option value="kids">Δραστηριότητα παιδιών</option><option value="other">Άλλο</option></select></label>
-<label>Κατάσταση<select id="status"><option>Έτοιμο</option><option>Σε προετοιμασία</option><option>Να ξεκινήσω</option><option>Επείγον</option><option>Δεν απαιτείται</option><option>Ακυρώθηκε</option></select></label>
+<label>Κατάσταση<select id="status"><option>Έτοιμο</option><option>Σε προετοιμασία</option><option>Να ξεκινήσω</option><option>Επείγον</option><option>Δεν απαιτείται</option><option>Ακυρώθηκε</option><option>Ολοκληρώθηκε</option><option>Αναβλήθηκε</option></select></label>
 <label class="full">Πού / Με ποιον<input id="where"></label><label class="full">Τι πρέπει να προετοιμάσω<textarea id="prepareText" rows="3"></textarea></label><label class="full">Σχόλια / Τι έγινε<textarea id="commentsText" rows="4" placeholder="Προσωπικές σημειώσεις / απολογισμός. Δεν εμφανίζονται στην κάρτα του ημερολογίου."></textarea></label>
+<label class="full" id="originalInfo"></label>
+<label class="full" id="scopeWrap" hidden>Εφαρμογή αλλαγών<select id="editScope"><option value="one">Μόνο αυτή η εμφάνιση</option><option value="future">Αυτή και οι επόμενες εμφανίσεις</option></select></label>
+<fieldset class="full" id="repeatWrap"><legend>Επανάληψη γεγονότος</legend>
+<label><input id="repeatEnabled" type="checkbox" style="width:auto" onchange="document.getElementById('repeatOptions').hidden=!this.checked"> Κάθε εβδομάδα</label>
+<div id="repeatOptions" hidden>
+<label>Πλήθος εβδομάδων<input id="repeatCount" type="number" min="1" max="260" value="8"></label>
+<label>Ώρα έναρξης<input id="repeatStart" type="time"></label><label>Ώρα λήξης<input id="repeatEnd" type="time"></label>
+<label>Ή συγκεκριμένες ημερομηνίες (YYYY-MM-DD, χωρισμένες με κόμμα)<textarea id="repeatDates" rows="2"></textarea></label>
+<label>Εξαιρέσεις (YYYY-MM-DD, χωρισμένες με κόμμα)<textarea id="repeatExcept" rows="2"></textarea></label>
+<button type="button" class="btn soft" onclick="previewRepeat()">Προβολή ημερομηνιών</button><div id="repeatPreview" aria-live="polite"></div>
+</div></fieldset>
 <div class="actions"><button type="button" class="btn soft" onclick="dlg.close()">Άκυρο</button><button type="button" class="btn soft" id="deleteBtn" onclick="deleteEvent()">Διαγραφή</button><button type="button" class="btn dark" onclick="saveEvent()">Αποθήκευση</button></div>
 </form></dialog>
 <script>
@@ -230,6 +243,7 @@ push('2027-03-10','17:00–19:00','CGT 202/T1','postgrad','Να ξεκινήσω
 push('2027-03-10','19:00–21:00','CGT 202/T2','postgrad','Να ξεκινήσω','Προετοιμασία CGT');
 push('2027-03-11','17:00–19:00','CGT 202/T3','postgrad','Να ξεκινήσω','Προετοιμασία CGT');
 push('2027-03-31','17:00–19:00','CGT 203/T1','postgrad','Να ξεκινήσω','Προετοιμασία CGT');
+const originalDefaults=JSON.parse(JSON.stringify(defaults));
 const savedDefaultEdits=JSON.parse(localStorage.getItem('academicAgendaDefaultEdits')||'[]');
 if(Array.isArray(savedDefaultEdits)){savedDefaultEdits.forEach(saved=>{const i=defaults.findIndex(x=>x.id===saved.id);if(i>=0)defaults[i]={...defaults[i],...saved};});}
 let custom=JSON.parse(localStorage.getItem('academicAgendaCustom')||'[]');
@@ -242,6 +256,7 @@ let snapshots=JSON.parse(localStorage.getItem('academicAgendaSnapshots')||'{}');
 
 function snapshotPayload(){
  return {
+   defaultEdits:JSON.parse(JSON.stringify(defaults)),
    custom:JSON.parse(JSON.stringify(custom)),
    states:JSON.parse(JSON.stringify(states)),
    undoStates:JSON.parse(JSON.stringify(undoStates)),
@@ -271,6 +286,8 @@ function restoreSnapshot(){
  if(!key || !snapshots[key]){alert('Δεν υπάρχει διαθέσιμη αποθηκευμένη κατάσταση για αυτή την ημερομηνία.');return;}
  if(!confirm(`Να επανέλθει η Agenda στην κατάσταση της ${key.split('-').reverse().join('/')} ;`))return;
  const s=snapshots[key];
+ restoreDefaultEvents(s.defaultEdits);
+ localStorage.setItem("academicAgendaDefaultEdits",JSON.stringify(defaults));
  custom=JSON.parse(JSON.stringify(s.custom||[]));
  states=JSON.parse(JSON.stringify(s.states||{}));
  undoStates=JSON.parse(JSON.stringify(s.undoStates||{}));
@@ -286,7 +303,12 @@ function restoreSnapshot(){
  render();
  alert(`Η Agenda επανήλθε στην αποθηκευμένη κατάσταση της ${key.split('-').reverse().join('/')}.`);
 }
-function events(){return defaults.map(e=>({...e,status:states[e.id]||e.status})).concat(custom)}
+function allEvents(){return defaults.map(e=>({...e,status:states[e.id]||e.status})).concat(custom)}
+function events(){return allEvents().filter(e=>!e.deleted)}
+function restoreDefaultEvents(edits){
+ const saved=new Map((Array.isArray(edits)?edits:[]).map(e=>[e.id,e]));
+ defaults.splice(0,defaults.length,...originalDefaults.map(e=>({...e,...saved.get(e.id)})));
+}
 function statusClass(s){return s==='Έτοιμο'?'status-ready':s==='Ακυρώθηκε'?'status-urgent':s==='Επείγον'?'status-urgent':s==='Σε προετοιμασία'?'status-progress':'status-start'}
 function parseTimeRange(value){
  const s=String(value||'').trim().replace(/[–—−]/g,'-');
@@ -324,18 +346,25 @@ function render(){
   box.innerHTML=`<div class="dayhead">${DAY[d.getDay()]}${isToday?'<span class="today-badge">ΣΗΜΕΡΑ</span>':''} <span class="date">${fmt(d)}</span></div>`;
   events().filter(e=>e.date===ds).sort((a,b)=>a.time.localeCompare(b.time)).forEach(e=>{
    let done=performed.some(p=>p.id===e.id), cancelled=e.status==='Ακυρώθηκε', hasConflict=!cancelled&&activeConflictIds.has(e.id);let x=document.createElement('div');x.className='event '+e.type+(done?' completed':'')+(cancelled?' cancelled':'')+(hasConflict?' time-conflict':'');x.onclick=()=>editEvent(e);
-   x.innerHTML=`<div class="time">${e.time||''}</div><b>${e.title}</b>${e.where?`<div>${e.where}</div>`:''}${e.prep?`<div class="prep-note">${e.prep}</div>`:''}${(!cancelled && e.status && e.status!=='undefined' && e.status!=='Δεν απαιτείται')?`<div class="status ${statusClass(e.status)}">${e.status}</div>`:''}`;box.appendChild(x)
+   x.innerHTML=`<div class="time">${excelEsc(e.time||'')}</div><b>${excelEsc(e.title)}</b>${e.where?`<div>${excelEsc(e.where)}</div>`:''}${e.prep?`<div class="prep-note">${excelEsc(e.prep)}</div>`:''}${(!cancelled && e.status && e.status!=='undefined' && e.status!=='Δεν απαιτείται')?`<div class="status ${statusClass(e.status)}">${excelEsc(e.status)}</div>`:''}`;box.appendChild(x)
+   if(e.originalDate){const info=document.createElement('div');info.textContent='Αρχικά: '+e.originalDate;x.appendChild(info);}
+   if(e.seriesId){const info=document.createElement('div');info.textContent='↻ Εβδομαδιαία επανάληψη';x.appendChild(info);}
    if(cancelled){
      x.insertAdjacentHTML('beforeend','<div class="cancel-badge">✕ ΑΚΥΡΩΘΗΚΕ</div>');
    }else if(done){
      x.insertAdjacentHTML('beforeend','<div class="done-badge">✓ ΟΛΟΚΛΗΡΩΜΕΝΟ</div>');
    }else{
      const b=document.createElement('button');
-     b.className='btn soft';
-     b.style.marginTop='7px';
-     b.textContent='✓ Πραγματοποιήθηκε';
+     const actions=document.createElement('div');actions.className='event-actions';x.appendChild(actions);
+     b.type='button';b.className='btn soft event-action';
+     b.textContent='✓';b.title='Ολοκληρώθηκε';b.setAttribute('aria-label','Ολοκληρώθηκε');
      b.onclick=(ev)=>{ev.stopPropagation();markReady(e.id);};
-     x.appendChild(b);
+     actions.appendChild(b);
+     for(const [symbol,label,action] of [['↷','Αναβλήθηκε',()=>postponeEvent(e.id)],['✕','Ακυρώθηκε',()=>cancelEvent(e.id)]]){
+       const button=document.createElement('button');button.type='button';button.className='btn soft event-action';button.textContent=symbol;
+       button.title=label;button.setAttribute('aria-label',label);
+       button.onclick=ev=>{ev.stopPropagation();action();};actions.appendChild(button);
+     }
    }
   });calendar.appendChild(box)}
  renderPrep();renderFocus();renderWeeks()
@@ -348,7 +377,7 @@ function renderPrep(){
  // The lower panel is deliberately a 30-day operational view:
  // undergraduate + postgraduate pending items, plus urgent items of any category.
  let active=events().filter(e=>{
-   if(performedIds.has(e.id) || e.status==='Έτοιμο' || e.status==='Δεν απαιτείται' || e.status==='Ακυρώθηκε') return false;
+   if(performedIds.has(e.id) || e.status==='Έτοιμο' || e.status==='Δεν απαιτείται' || e.status==='Ακυρώθηκε' || e.status==='Ολοκληρώθηκε') return false;
    const d=parse(e.date);
    if(d<today || d>limit) return false;
    const academic=(e.type==='teaching'||e.type==='postgrad');
@@ -372,11 +401,11 @@ function renderPrep(){
  };
 
  document.getElementById('prep').innerHTML=active.length ? active.map(e=>`<div class="prepcard ${e.status==='Επείγον'?'urgent':''}">
-   <small>${e.date.split('-').reverse().join('/')} · ${e.time||''} · <b>${daysText(e)}</b></small><br>
-   <b>${e.title}</b>
+   <small>${e.date.split('-').reverse().join('/')} · ${excelEsc(e.time||'')} · <b>${daysText(e)}</b></small><br>
+   <b>${excelEsc(e.title)}</b>
    <p>${e.prep||'—'}</p>
    <b class="${statusClass(e.status)}">${e.status==='Επείγον'?'🔴 ⚠ ΕΠΕΙΓΟΝ':e.status}</b>
-   <br><button class="btn soft" onclick="markReady('${e.id}')">✓ Πραγματοποιήθηκε</button>
+   <br><button class="btn soft event-action" title="Ολοκληρώθηκε" aria-label="Ολοκληρώθηκε" onclick="markReady('${e.id}')">✓</button>
  </div>`).join('') : `<div class="prepcard ready"><b>✓ Δεν υπάρχουν σχετικές εκκρεμότητες στις επόμενες 30 ημέρες.</b></div>`;
 }
 function renderFocus(){
@@ -402,96 +431,110 @@ const fldComments=document.getElementById('commentsText');
 const fldDelete=document.getElementById('deleteBtn');
 function openNew(){
   form.reset(); fldEid.value=''; fldDate.value=iso(new Date());
-  fldStatus.value='Να ξεκινήσω'; fldDelete.style.display='none'; dlg.showModal();
+  fldStatus.value='Να ξεκινήσω'; fldDelete.style.display='none'; setupSeriesForm(null); dlg.showModal();
 }
 function editEvent(e){
   fldEid.value=e.id; fldDate.value=e.date; fldTime.value=e.time||'';
   fldTitle.value=e.title; fldType.value=e.type; fldStatus.value=e.status||'Να ξεκινήσω';
   fldWhere.value=e.where||''; fldPrep.value=e.prep||''; fldComments.value=e.comments||'';
-  fldDelete.style.display=e.id.startsWith('c')?'inline-block':'none'; dlg.showModal();
+  fldDelete.style.display='inline-block'; setupSeriesForm(e); dlg.showModal();
+}
+function validDate(value){return /^\d{4}-\d{2}-\d{2}$/.test(value)&&iso(parse(value))===value}
+function putEvent(e){
+ if(e.id.startsWith('d')){Object.assign(defaults.find(x=>x.id===e.id),e);states[e.id]=e.status;}
+ else{const i=custom.findIndex(x=>x.id===e.id);if(i<0)custom.push(e);else custom[i]=e;}
+}
+function persistEvents(){
+ localStorage.setItem('academicAgendaCustom',JSON.stringify(custom));
+ localStorage.setItem('academicAgendaStates',JSON.stringify(states));
+ localStorage.setItem('academicAgendaDefaultEdits',JSON.stringify(defaults));
+ localStorage.setItem('academicAgendaArchive',JSON.stringify(archive));
+ localStorage.setItem('academicAgendaPerformed',JSON.stringify(performed));
+}
+function setupSeriesForm(e){
+ document.getElementById('repeatWrap').hidden=!!e;
+ document.getElementById('scopeWrap').hidden=!e?.seriesId;
+ document.getElementById('editScope').value='one';
+ document.getElementById('repeatEnabled').checked=false;
+ document.getElementById('repeatOptions').hidden=true;
+ document.getElementById('repeatPreview').textContent='';
+ document.getElementById('originalInfo').textContent=e?.originalDate?'Αρχική ημερομηνία: '+e.originalDate:'';
+}
+function dateList(value){
+ const dates=value.trim()?value.split(/[\s,;]+/).filter(Boolean):[];
+ if(dates.some(d=>!validDate(d)))throw Error('Χρησιμοποίησε έγκυρες ημερομηνίες YYYY-MM-DD.');
+ return [...new Set(dates)].sort();
+}
+function recurrenceDates(){
+ const explicit=dateList(document.getElementById('repeatDates').value);
+ const count=Number(document.getElementById('repeatCount').value);
+ if(!validDate(fldDate.value)||!Number.isInteger(count)||count<1||count>260)throw Error('Επίλεξε ημερομηνία και πλήθος από 1 έως 260.');
+ const dates=explicit.length?explicit:Array.from({length:count},(_,i)=>iso(add(parse(fldDate.value),i*7)));
+ if(dates.length>260||dates.some(d=>parse(d).getDay()!==parse(fldDate.value).getDay()))throw Error('Επίλεξε έως 260 ημερομηνίες της ίδιας ημέρας της εβδομάδας.');
+ const excluded=new Set(dateList(document.getElementById('repeatExcept').value));
+ const result=dates.filter(d=>!excluded.has(d));
+ if(!result.length)throw Error('Δεν απομένει καμία εμφάνιση.');
+ return result;
+}
+function previewRepeat(){
+ try{document.getElementById('repeatPreview').textContent=recurrenceDates().join(' · ');}
+ catch(e){alert(e.message);}
 }
 function saveEvent(){
-  const id=fldEid.value;
-  const oldEvent=id ? events().find(x=>x.id===id) : null;
-  const wasCancelled=!!(oldEvent && oldEvent.status==='Ακυρώθηκε');
-
-  if((fldPrep.value||'').trim() && fldStatus.value==='Δεν απαιτείται'){
-    fldStatus.value='Σε προετοιμασία';
-  }
-  const finalStatus=fldStatus.value;
-
-  const data={
-    date:fldDate.value,time:fldTime.value,title:fldTitle.value,
-    type:fldType.value||'other',status:finalStatus,where:fldWhere.value,
-    prep:fldPrep.value,comments:fldComments.value
-  };
-
-  const clashes=conflictingEvents({...data,id:id||'__new__'},id);
-  if(clashes.length){
-    const details=clashes.map(x=>`${x.time||'χωρίς ώρα'} — ${x.title}`).join('\n');
-    if(!window.confirm('⚠ ΣΥΓΚΡΟΥΣΗ ΩΡΑΣ\n\nΗ καταχώριση επικαλύπτεται με:\n'+details+'\n\nOK = Αποδοχή σύγκρουσης και αποθήκευση\nCancel = Επιστροφή για διόρθωση'))return;
-  }
-
-  let savedId=id;
-  if(id && id.startsWith('d')){
-    const base=defaults.find(x=>x.id===id);
-    if(base) Object.assign(base,data);
-    states[id]=finalStatus;
-    localStorage.setItem('academicAgendaStates',JSON.stringify(states));
-    localStorage.setItem('academicAgendaDefaultEdits',JSON.stringify(defaults.filter(x=>x.id.startsWith('d'))));
-  }else if(id){
-    const ix=custom.findIndex(x=>x.id===id);
-    if(ix>=0) custom[ix]={...custom[ix],...data};
-    localStorage.setItem('academicAgendaCustom',JSON.stringify(custom));
+ if(!document.getElementById('form').reportValidity())return;
+ const id=fldEid.value, old=events().find(e=>e.id===id);
+ const data={date:fldDate.value,time:fldTime.value.trim(),title:fldTitle.value.trim(),type:fldType.value,status:fldStatus.value,where:fldWhere.value,prep:fldPrep.value,comments:fldComments.value};
+ if(!validDate(data.date)||!data.title){alert('Συμπλήρωσε έγκυρη ημερομηνία και τίτλο.');return;}
+ if(data.status==='Αναβλήθηκε'&&(!old||data.date===old.date)){alert('Για την αναβολή χρειάζεται διαφορετική νέα ημερομηνία.');return;}
+ let planned=[];
+ try{
+  if(!id&&document.getElementById('repeatEnabled').checked){
+   const start=document.getElementById('repeatStart').value,end=document.getElementById('repeatEnd').value;
+   if(!start||!end||end<=start)throw Error('Συμπλήρωσε ώρα έναρξης και μεταγενέστερη ώρα λήξης.');
+   data.time=start+'–'+end;
+   const dates=recurrenceDates(),seriesId='s'+crypto.randomUUID();
+   planned=dates.map(date=>({id:'c'+crypto.randomUUID(),...data,date,recurring:true,seriesId,seriesDate:date,recurrence_end_date:dates[dates.length-1]}));
   }else{
-    savedId='c'+Date.now();
-    custom.push({id:savedId,...data});
-    localStorage.setItem('academicAgendaCustom',JSON.stringify(custom));
+   const targets=old?.seriesId&&document.getElementById('editScope').value==='future'
+    ?events().filter(e=>e.seriesId===old.seriesId&&e.seriesDate>=old.seriesDate):[old||{id:'c'+crypto.randomUUID()}];
+   const shift=old?Math.round((parse(data.date)-parse(old.date))/86400000):0;
+   planned=targets.map(e=>{
+    const date=old?iso(add(parse(e.date),shift)):data.date;
+    const result={...e,...data,date};
+    if(data.status==='Αναβλήθηκε'){
+      result.originalDate=e.originalDate||e.date;
+      result.reschedule_date=date;result.reschedule_time=data.time;
+      result.rescheduleHistory=[...(e.rescheduleHistory||[]),{from:e.date,to:date,at:new Date().toISOString()}];
+    }
+    return result;
+   });
   }
-
-  // A cancelled item must not remain in the "performed" archive.
-  if(finalStatus==='Ακυρώθηκε'){
-    performed=performed.filter(x=>x.id!==savedId);
-    localStorage.setItem('academicAgendaPerformed',JSON.stringify(performed));
-  }
-
-  dlg.close();
-  render();
-
-  if(finalStatus==='Ακυρώθηκε' && !wasCancelled){
-    setTimeout(function(){ offerReschedule(savedId); },150);
-  }
+ }catch(e){alert(e.message);return;}
+ const ids=new Set(planned.map(e=>e.id));
+ const clashes=planned.flatMap(e=>conflictingEvents(e,e.id)).filter(e=>!ids.has(e.id));
+ if(clashes.length&&!confirm('Υπάρχει επικάλυψη ώρας. Να αποθηκευτεί;'))return;
+ for(const e of planned){
+  putEvent(e);
+  const prior=performed.find(p=>p.id===e.id);
+  performed=performed.filter(p=>p.id!==e.id);
+  archive=archive.filter(p=>p.id!==e.id);
+  if(e.status==='Ολοκληρώθηκε')performed.push({...e,previousStatus:prior?.previousStatus||old?.status||'Να ξεκινήσω',performedDate:prior?.performedDate||e.date,performedAt:prior?.performedAt||new Date().toISOString()});
+ }
+ persistEvents();dlg.close();render();
 }
-function offerReschedule(id){
-  const e=events().find(x=>x.id===id); if(!e)return;
-  const isLesson=e.type==='teaching'||e.type==='postgrad';
-  const q=isLesson
-    ? 'Η δραστηριότητα σημειώθηκε ως ΑΚΥΡΩΘΗΚΕ. Θέλεις να προγραμματίσεις αναπλήρωση / νέα ημερομηνία;'
-    : 'Η καταχώριση σημειώθηκε ως ΑΚΥΡΩΘΗΚΕ. Θέλεις να προγραμματίσεις νέα ημερομηνία / νέο ραντεβού;';
-  if(!window.confirm(q))return;
-
-  form.reset();
-  fldEid.value='';
-  fldDate.value=e.date;
-  fldTime.value=e.time||'';
-  fldTitle.value=e.title;
-  fldType.value=e.type||'other';
-  fldStatus.value=(e.prep||'').trim()?'Σε προετοιμασία':'Να ξεκινήσω';
-  fldWhere.value=e.where||'';
-  fldPrep.value=e.prep||'';
-  fldComments.value=((e.comments||'')+(e.comments?'\n':'')+
-    'Νέα ημερομηνία / αναπλήρωση της ακυρωμένης καταχώρισης '+e.date).trim();
-  fldDelete.style.display='none';
-  dlg.showModal();
-  fldDate.focus();
+function postponeEvent(id){const e=events().find(e=>e.id===id);if(!e)return;editEvent(e);fldStatus.value='Αναβλήθηκε';fldDate.value='';fldDate.focus();}
+function cancelEvent(id){
+ const e=events().find(e=>e.id===id);if(!e)return;
+ putEvent({...e,status:'Ακυρώθηκε'});performed=performed.filter(x=>x.id!==id);archive=archive.filter(x=>x.id!==id);
+ persistEvents();render();
 }
-
 function deleteEvent(){
- const id=eid.value;
- if(!id || !id.startsWith('c')){dlg.close();return;}
- custom=custom.filter(x=>x.id!==id);
- localStorage.setItem('academicAgendaCustom',JSON.stringify(custom));
- dlg.close();render();
+ const e=events().find(e=>e.id===fldEid.value);if(!e)return;
+ const targets=e.seriesId&&document.getElementById('editScope').value==='future'
+  ?events().filter(x=>x.seriesId===e.seriesId&&x.seriesDate>=e.seriesDate):[e];
+ if(!confirm('Να διαγραφ'+(targets.length===1?'εί αυτό το γεγονός;':'ούν αυτές οι '+targets.length+' εμφανίσεις;')))return;
+ for(const x of targets){putEvent({...x,deleted:true});performed=performed.filter(p=>p.id!==x.id);archive=archive.filter(p=>p.id!==x.id);}
+ persistEvents();dlg.close();render();
 }
 function markReady(id){
  const e=events().find(x=>x.id===id);
@@ -508,18 +551,11 @@ function confirmReady(){
  if(!pendingReadyId)return;
  const e=events().find(x=>x.id===pendingReadyId);
  if(!e)return;
- const now=new Date();
- const todayLocal=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
- const performedDate=(e.date && e.date<=todayLocal)?e.date:todayLocal;
+ const previousStatus=e.status;
+ putEvent({...e,status:'Ολοκληρώθηκε'});
  performed=performed.filter(x=>x.id!==e.id);
- performed.unshift({
-   id:e.id,title:e.title,date:e.date,time:e.time||'',type:e.type||'',
-   where:e.where||'',prep:e.prep||'',comments:e.comments||'',previousStatus:e.status||'',
-   performedDate:performedDate,performedAt:new Date().toISOString()
- });
- states[e.id]='Έτοιμο';
- localStorage.setItem('academicAgendaStates',JSON.stringify(states));
- localStorage.setItem('academicAgendaPerformed',JSON.stringify(performed));
+ performed.unshift({...e,status:'Ολοκληρώθηκε',previousStatus,performedDate:e.date,performedAt:new Date().toISOString()});
+ persistEvents();
  pendingReadyId=null;
  document.getElementById('confirmDlg').close();
  render();
@@ -560,7 +596,7 @@ function renderDayView(){
  const rows=[];
  for(;d<=end;d=add(d,7)){
    const ds=iso(d), es=events().filter(e=>e.date===ds).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
-   const detail=es.length?es.map(e=>`<div class="dayview-item"><b>${e.time||''}</b>${e.time?' · ':''}${e.title}${e.where?`<div style="font-size:12px;color:#6b7785">${e.where}</div>`:''}${performed.some(p=>p.id===e.id)?'<div class="done-badge">✓ ΟΛΟΚΛΗΡΩΜΕΝΟ</div>':''}</div>`).join(''):'<span class="dayview-free">✓ Ελεύθερο</span>';
+   const detail=es.length?es.map(e=>`<div class="dayview-item"><b>${excelEsc(e.time||'')}</b>${e.time?' · ':''}${excelEsc(e.title)}${e.where?`<div style="font-size:12px;color:#6b7785">${excelEsc(e.where)}</div>`:''}${performed.some(p=>p.id===e.id)?'<div class="done-badge">✓ ΟΛΟΚΛΗΡΩΜΕΝΟ</div>':''}</div>`).join(''):'<span class="dayview-free">✓ Ελεύθερο</span>';
    rows.push(`<div class="dayview-row" onclick="jumpToDate('${ds}')"><div class="dayview-date">${DAY[d.getDay()]}<br>${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}</div><div>${detail}</div></div>`);
  }
  document.getElementById('dayViewList').innerHTML=rows.join('')||'<div class="legend">Δεν βρέθηκαν ημερομηνίες.</div>';
@@ -581,6 +617,7 @@ function confirmResetAgenda(){
  localStorage.removeItem('academicAgendaUndo');
  localStorage.removeItem('academicAgendaArchive');
  localStorage.removeItem('academicAgendaPerformed');
+ defaults.splice(0,defaults.length,...JSON.parse(JSON.stringify(originalDefaults)));
  custom=[];
  states={};
  undoStates={};
@@ -590,6 +627,7 @@ function confirmResetAgenda(){
  current=monday(new Date());
  document.getElementById('resetDlg').close();
  render();
+ persistEvents();
  alert('Η Academic Agenda επανήλθε στην αρχική λειτουργική κατάσταση.');
 }
 function openArchive(){
@@ -608,9 +646,9 @@ function renderArchive(){
      last=a.performedDate;
      return `${head}<div style="background:#e8f5e9;border:1px solid #cce8d0;border-radius:10px;padding:12px;margin-bottom:9px">
        <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start">
-         <div><b>${a.title}</b>
-         <div style="font-size:12px;color:#6b7785;margin-top:4px">${a.time||'—'}${a.where?' · '+a.where:''}</div>
-         <div style="font-size:11px;color:#2d7a43;margin-top:5px">✓ Πραγματοποιήθηκε · διαθέσιμο για Tracker</div></div>
+         <div><b>${excelEsc(a.title)}</b>
+         <div style="font-size:12px;color:#6b7785;margin-top:4px">${excelEsc(a.time||'—')}${a.where?' · '+a.where:''}</div>
+         <div style="font-size:11px;color:#2d7a43;margin-top:5px">✓ Ολοκληρώθηκε · διαθέσιμο για Tracker</div></div>
          <button class="btn soft" onclick="undoPerformed('${a.id}')">↶ Επαναφορά</button>
        </div>
      </div>`;
@@ -621,7 +659,8 @@ function renderArchive(){
 function undoPerformed(id){
  const a=performed.find(x=>x.id===id); if(!a)return;
  performed=performed.filter(x=>x.id!==id);
- if(a.previousStatus) states[id]=a.previousStatus; else delete states[id];
+ const e=events().find(x=>x.id===id);if(e)putEvent({...e,status:a.previousStatus||'Να ξεκινήσω'});
+ persistEvents();
  localStorage.setItem('academicAgendaPerformed',JSON.stringify(performed));
  localStorage.setItem('academicAgendaStates',JSON.stringify(states));
  renderArchive();render();
@@ -670,7 +709,8 @@ function exportTrackerRange(){
 
  const selected=performed.filter(a=>{
    const d=trackerRecordDate(a);
-   return d && d>=from && d<=to;
+   const e=allEvents().find(e=>e.id===a.id);
+   return !e?.deleted && (!e || e.status==='Ολοκληρώθηκε') && d && d>=from && d<=to;
  }).sort((a,b)=>trackerRecordDate(a).localeCompare(trackerRecordDate(b)) || String(a.time||'').localeCompare(String(b.time||'')));
 
  if(!selected.length){alert('Δεν υπάρχουν ολοκληρωμένες εγγραφές σε αυτό το διάστημα.');return;}
@@ -707,6 +747,7 @@ function exportBackup(){
    app:"Academic Agenda",
    version:"1.0",
    exportedAt:new Date().toISOString(),
+   defaultEdits:defaults,
    customEvents:custom,
    eventStates:states,
    undoStates:undoStates,
@@ -732,6 +773,8 @@ function importBackup(ev){
      if(!data || data.app!=="Academic Agenda" || !Array.isArray(data.customEvents) || typeof data.eventStates!=="object")
        throw new Error("invalid");
      if(!confirm("Το Restore θα αντικαταστήσει τις δικές σου τρέχουσες καταχωρίσεις και καταστάσεις με αυτές του backup. Συνέχεια;")) return;
+     restoreDefaultEvents(data.defaultEdits);
+     localStorage.setItem("academicAgendaDefaultEdits",JSON.stringify(defaults));
      custom=data.customEvents;
      states=data.eventStates || {};
      undoStates=data.undoStates || {};
@@ -779,7 +822,7 @@ function captureSupabaseAuthFromUrl(){
 const sbAuthCapturedFromUrl=captureSupabaseAuthFromUrl();
 function sbCfg(){return {url:(document.getElementById('sbUrl')?.value||localStorage.getItem('academicAgendaSbUrl')||'').replace(/\/$/,''),key:document.getElementById('sbKey')?.value||localStorage.getItem('academicAgendaSbKey')||'',token:localStorage.getItem('academicAgendaSbToken')||''};}
 function sbRemember(){const c=sbCfg();localStorage.setItem('academicAgendaSbUrl',c.url);localStorage.setItem('academicAgendaSbKey',c.key);const em=document.getElementById('sbEmail');if(em)localStorage.setItem('academicAgendaSbEmail',em.value||'');}
-function sbMsg(t,ok=true){const x=document.getElementById('sbStatus');if(x){x.textContent=t;x.style.color=ok?'#2f6f4e':'#b42318';}}
+function sbMsg(t,ok=true){for(const id of ['sbStatus','syncNotice']){const x=document.getElementById(id);if(x){x.textContent=t;x.style.color=ok?'#2f6f4e':'#b42318';}}}
 function openCloudDlg(){const d=document.getElementById('cloudDlg');document.getElementById('sbUrl').value=localStorage.getItem('academicAgendaSbUrl')||'https://errlrotvwybkgxdlqqru.supabase.co';document.getElementById('sbKey').value=localStorage.getItem('academicAgendaSbKey')||'';document.getElementById('sbEmail').value=localStorage.getItem('academicAgendaSbEmail')||'';const hasToken=!!localStorage.getItem('academicAgendaSbToken');sbMsg(hasToken?'Έλεγχος σύνδεσης…':'Δεν έχει γίνει σύνδεση.');const pt=document.getElementById('sbPasswordTools');if(pt)pt.style.display=hasToken?'block':'none';d.showModal();if(hasToken){sbEnsureSession().then(()=>sbMsg('✓ Συνδεδεμένο — Auto Sync ενεργό.')).catch(()=>{if(pt)pt.style.display='none';});}}
 async function sbSetPassword(){
   const status=document.getElementById('sbPasswordStatus');
@@ -850,7 +893,7 @@ async function cloudSignOut(){
 }
 
 async function sbAuth(){sbRemember();const c=sbCfg(),email=document.getElementById('sbEmail').value.trim(),password=document.getElementById('sbPassword').value;if(!c.url||!c.key||!email||!password)throw new Error('Συμπλήρωσε URL, publishable key, email και password.');const r=await fetch(c.url+'/auth/v1/token?grant_type=password',{method:'POST',headers:{apikey:c.key,'Content-Type':'application/json'},body:JSON.stringify({email,password})});const j=await r.json();if(!r.ok)throw new Error(j.msg||j.message||j.error_description||'Αποτυχία authentication');if(j.access_token)localStorage.setItem('academicAgendaSbToken',j.access_token);if(j.refresh_token)localStorage.setItem('academicAgendaSbRefreshToken',j.refresh_token);return j;}
-async function cloudSignIn(){try{await sbAuth();sbMsg('✓ Συνδέθηκε. Auto Sync ενεργό.');await cloudLoad(false);startCloudPolling();}catch(e){sbMsg('✗ '+(e instanceof TypeError?'Δεν ήταν δυνατή η επικοινωνία με το Supabase.':e.message),false);}}
+async function cloudSignIn(){try{await sbAuth();sbMsg('✓ Συνδέθηκε. Auto Sync ενεργό.');await initializeCloudSync();startCloudPolling();}catch(e){sbMsg('✗ '+(e instanceof TypeError?'Δεν ήταν δυνατή η επικοινωνία με το Supabase.':e.message),false);}}
 
 function sbJwtExp(token){
   try{
@@ -882,9 +925,11 @@ async function sbRefreshSession(force=false){
     });
     const j=await r.json().catch(()=>({}));
     if(!r.ok || !j.access_token){
-      localStorage.removeItem('academicAgendaSbToken');
-      localStorage.removeItem('academicAgendaSbRefreshToken');
-      stopCloudPolling();
+      if(r.status===400||r.status===401){
+        localStorage.removeItem('academicAgendaSbToken');
+        localStorage.removeItem('academicAgendaSbRefreshToken');
+        stopCloudPolling();
+      }
       sbMsg('Η σύνδεση έληξε — απαιτείται νέα σύνδεση.',false);
       throw new Error(j.msg||j.message||j.error_description||'Η σύνδεση έληξε — απαιτείται νέα σύνδεση.');
     }
@@ -904,59 +949,77 @@ async function sbEnsureSession(){
   return token;
 }
 function sbHeaders(){const c=sbCfg();if(!c.url||!c.key)throw new Error('Λείπει URL ή publishable key.');if(!c.token)throw new Error('Πάτησε πρώτα «Σύνδεση».');return {apikey:c.key,Authorization:'Bearer '+c.token,'Content-Type':'application/json',Prefer:'return=minimal'};}
-function rowFromEvent(e,source){return {event_date:e.date||null,event_time:e.time||null,title:e.title||'',category:e.type||null,status:e.status||null,location:e.where||null,preparation:e.prep||null,notes:e.comments||null,reschedule_date:e.reschedule_date||null,reschedule_time:e.reschedule_time||null,reschedule_needed:!!e.reschedule_needed,conflict_accepted:!!e.conflict_accepted,completed:e.status==='Έτοιμο',prep_done:!!e.prep_done,prep_deadline:e.prep_deadline||null,priority:e.priority||null,urgent:e.status==='Επείγον'||!!e.urgent,recurring:!!e.recurring,recurrence_rule:e.recurrence_rule||null,recurrence_end_date:e.recurrence_end_date||null,source,source_reference:String(e.id||''),external_link:e.external_link||null,attachment_path:e.attachment_path||null,updated_at:new Date().toISOString()};}
-function eventFromRow(r){return {id:r.source_reference,date:r.event_date,time:r.event_time||'',title:r.title||'',type:r.category||'other',status:r.status||'Να ξεκινήσω',where:r.location||'',prep:r.preparation||'',comments:r.notes||'',reschedule_date:r.reschedule_date||null,reschedule_time:r.reschedule_time||null,reschedule_needed:!!r.reschedule_needed,conflict_accepted:!!r.conflict_accepted,prep_done:!!r.prep_done,prep_deadline:r.prep_deadline||null,priority:r.priority||null,urgent:!!r.urgent,recurring:!!r.recurring,recurrence_rule:r.recurrence_rule||null,recurrence_end_date:r.recurrence_end_date||null,external_link:r.external_link||null,attachment_path:r.attachment_path||null};}
+function rowFromEvent(e,source){return {event_date:e.date||null,event_time:e.time||null,title:e.title||'',category:e.type||null,status:e.status||null,location:e.where||null,preparation:e.prep||null,notes:e.comments||null,reschedule_date:e.reschedule_date||null,reschedule_time:e.reschedule_time||null,reschedule_needed:!!e.reschedule_needed,conflict_accepted:!!e.conflict_accepted,completed:e.status==='Ολοκληρώθηκε'||source===SB_SOURCE_PERFORMED,prep_done:!!e.prep_done,prep_deadline:e.prep_deadline||null,priority:e.priority||null,urgent:e.status==='Επείγον'||!!e.urgent,recurring:!!e.recurring,recurrence_rule:JSON.stringify({agendaVersion:318,legacyRule:e.recurrence_rule||null,seriesId:e.seriesId||null,seriesDate:e.seriesDate||null,originalDate:e.originalDate||null,rescheduleHistory:e.rescheduleHistory||[],deleted:!!e.deleted,performedDate:e.performedDate||null,performedAt:e.performedAt||null,previousStatus:e.previousStatus||null}),recurrence_end_date:e.recurrence_end_date||null,source,source_reference:String(e.id||''),external_link:e.external_link||null,attachment_path:e.attachment_path||null,updated_at:new Date().toISOString()};}
+function eventFromRow(r){let meta={};try{const m=JSON.parse(r.recurrence_rule);if(m?.agendaVersion===318)meta=m;}catch(e){}return {...meta,id:r.source_reference,date:r.event_date,time:r.event_time||'',title:r.title||'',type:r.category||'other',status:r.status||'Να ξεκινήσω',where:r.location||'',prep:r.preparation||'',comments:r.notes||'',reschedule_date:r.reschedule_date||null,reschedule_time:r.reschedule_time||null,reschedule_needed:!!r.reschedule_needed,conflict_accepted:!!r.conflict_accepted,prep_done:!!r.prep_done,prep_deadline:r.prep_deadline||null,priority:r.priority||null,urgent:!!r.urgent,recurring:!!r.recurring,recurrence_rule:meta.agendaVersion?meta.legacyRule:r.recurrence_rule||null,recurrence_end_date:r.recurrence_end_date||null,external_link:r.external_link||null,attachment_path:r.attachment_path||null};}
 
-function sbComparableRow(r){
-  const x={...r}; delete x.updated_at; return x;
-}
-function sbFingerprint(rows){
-  const a=rows.map(sbComparableRow).sort((x,y)=>{
-    const ax=(x.source||'')+'|'+(x.source_reference||'');
-    const ay=(y.source||'')+'|'+(y.source_reference||'');
-    return ax.localeCompare(ay);
-  });
-  return JSON.stringify(a);
-}
+function sbComparableRow(r){const x=rowFromEvent(eventFromRow(r),r.source);delete x.updated_at;return x;}
+const sbKeyOf=r=>r.source+'|'+r.source_reference;
+const sbSame=(a,b)=>!!a&&!!b&&JSON.stringify(sbComparableRow(a))===JSON.stringify(sbComparableRow(b));
+function sbFingerprint(rows){return JSON.stringify(rows.map(sbComparableRow).sort((a,b)=>sbKeyOf(a).localeCompare(sbKeyOf(b))));}
 function sbLocalRows(){
   return [
-    ...events().map(e=>rowFromEvent(e,SB_SOURCE_ACTIVE)),
+    ...allEvents().map(e=>rowFromEvent(e,SB_SOURCE_ACTIVE)),
     ...archive.map(e=>rowFromEvent(e,SB_SOURCE_ARCHIVE)),
     ...performed.map(e=>rowFromEvent(e,SB_SOURCE_PERFORMED))
   ];
 }
+const sbHasPriorLocalData=['Custom','States','DefaultEdits','Performed'].some(k=>{
+ const value=localStorage.getItem('academicAgenda'+k);return value&&value!=='[]'&&value!=='{}';
+});
+const sbFirstUpgrade=sbHasPriorLocalData&&!localStorage.getItem('academicAgendaSyncReviewed');
+let sbReviewBlocked=localStorage.getItem('academicAgendaSyncReviewBlocked')==='true';
+let sbBaseRows=JSON.parse(localStorage.getItem('academicAgendaSyncBase')||'null')||sbLocalRows();
+function sbSetBase(rows){sbBaseRows=JSON.parse(JSON.stringify(rows));localStorage.setItem('academicAgendaSyncBase',JSON.stringify(rows));}
+sbSetBase(sbBaseRows);
 async function sbFetchCloudRows(){
   await sbEnsureSession();
   const c=sbCfg(),h=sbHeaders();
-  const q='?source=in.('+[SB_SOURCE_ACTIVE,SB_SOURCE_ARCHIVE,SB_SOURCE_PERFORMED].join(',')+')&select=*';
-  let r=await fetch(c.url+'/rest/v1/agenda_events'+q,{headers:h});
-  if(r.status===401){
-    await sbRefreshSession(true);
-    r=await fetch(c.url+'/rest/v1/agenda_events'+q,{headers:sbHeaders()});
+  const q='?source=in.('+[SB_SOURCE_ACTIVE,SB_SOURCE_ARCHIVE,SB_SOURCE_PERFORMED].join(',')+')&select=*&order=id.asc';
+  const rows=[];
+  for(let offset=0;;offset+=500){
+    let r=await fetch(c.url+'/rest/v1/agenda_events'+q+'&limit=500&offset='+offset,{headers:sbHeaders()});
+    if(r.status===401){await sbRefreshSession(true);r=await fetch(c.url+'/rest/v1/agenda_events'+q+'&limit=500&offset='+offset,{headers:sbHeaders()});}
+    if(!r.ok)throw new Error('SELECT '+r.status+': '+await r.text());
+    const page=await r.json();rows.push(...page);if(page.length<500)break;
   }
-  if(!r.ok)throw new Error('SELECT '+r.status+': '+await r.text());
-  return await r.json();
+  return rows;
 }
+
 function sbApplyRows(rows,showMessage=false){
-  if(!rows.length)return false;
   sbApplyingRemote=true;
   try{
     const active=rows.filter(x=>x.source===SB_SOURCE_ACTIVE).map(eventFromRow);
     archive=rows.filter(x=>x.source===SB_SOURCE_ARCHIVE).map(eventFromRow);
-    performed=rows.filter(x=>x.source===SB_SOURCE_PERFORMED).map(eventFromRow);
+    const previousPerformed=new Map(performed.map(e=>[e.id,e]));
+    performed=rows.filter(x=>x.source===SB_SOURCE_PERFORMED).map(r=>{
+      const e=eventFromRow(r),old=previousPerformed.get(e.id);
+      // Legacy v3.17 rows omitted completion dates and undo status.
+      if(!e.agendaVersion&&old){
+        for(const key of ['performedDate','performedAt','previousStatus'])if(old[key])e[key]=old[key];
+      }
+      return e;
+    });
     custom=active.filter(e=>String(e.id).startsWith('c'));
     states={};
+    const remoteIds=new Set(active.map(e=>e.id));
+    defaults.forEach(e=>{e.deleted=!remoteIds.has(e.id);});
     active.filter(e=>String(e.id).startsWith('d')).forEach(e=>{
       const i=defaults.findIndex(x=>x.id===e.id);
       if(i>=0)Object.assign(defaults[i],e);
       states[e.id]=e.status;
     });
+    for(const a of performed){
+      const e=events().find(e=>e.id===a.id);
+      if(e&&e.status!=='Ακυρώθηκε'&&e.status!=='Αναβλήθηκε')putEvent({...e,status:'Ολοκληρώθηκε'});
+    }
     localStorage.setItem('academicAgendaCustom',JSON.stringify(custom));
     localStorage.setItem('academicAgendaStates',JSON.stringify(states));
     localStorage.setItem('academicAgendaDefaultEdits',JSON.stringify(defaults.filter(x=>x.id.startsWith('d'))));
     localStorage.setItem('academicAgendaArchive',JSON.stringify(archive));
     localStorage.setItem('academicAgendaPerformed',JSON.stringify(performed));
-    sbLocalDirty=false;
+    sbSetBase(rows);sbLocalDirty=false;
+    sbReviewBlocked=false;localStorage.removeItem('academicAgendaSyncReviewBlocked');
+    localStorage.setItem('academicAgendaSyncReviewed','true');
     render();
     if(showMessage)sbMsg('✓ Φορτώθηκαν '+rows.length+' εγγραφές. Auto Sync ενεργό.');
     return true;
@@ -973,78 +1036,91 @@ function stopCloudPolling(){
   if(sbPollTimer){clearInterval(sbPollTimer);sbPollTimer=null;}
 }
 async function checkCloudForChanges(){
-  if(!navigator.onLine || sbSyncBusy || sbLocalDirty || sbAutoTimer || sbApplyingRemote)return;
-  try{
-    const rows=await sbFetchCloudRows();
-    if(!rows.length)return;
-    const fp=sbFingerprint(rows);
-    if(!sbLastCloudFingerprint){
-      sbLastCloudFingerprint=fp;
-      return;
-    }
-    if(fp!==sbLastCloudFingerprint){
-      sbApplyRows(rows,false);
-      sbLastCloudFingerprint=fp;
-      localStorage.setItem('academicAgendaLastCloudSync',new Date().toISOString());
-      sbMsg('✓ Νεότερες αλλαγές από άλλη συσκευή φορτώθηκαν αυτόματα.');
-    }
-  }catch(e){
-    console.error('Cloud polling:',e);
-  }
+ if(!navigator.onLine||sbSyncBusy||sbLocalDirty||sbAutoTimer||sbApplyingRemote)return;
+ sbSyncBusy=true;
+ try{
+  const before=sbFingerprint(sbLocalRows()),rows=await sbFetchCloudRows(),fp=sbFingerprint(rows);
+  if(sbFingerprint(sbLocalRows())!==before||sbLocalDirty)return;
+  if(fp!==sbLastCloudFingerprint){sbApplyRows(rows);sbLastCloudFingerprint=fp;sbMsg('✓ Οι αλλαγές από άλλη συσκευή φορτώθηκαν.');}
+ }catch(e){sbMsg('✗ '+e.message,false);}
+ finally{sbSyncBusy=false;if(sbSyncQueued){sbSyncQueued=false;scheduleAutoSync();}}
+}
+async function sbWrite(method,row,existing){
+ await sbEnsureSession();
+ const c=sbCfg();
+ let query=existing?'?id=eq.'+encodeURIComponent(existing.id):'';
+ if(existing)query+='&updated_at='+(existing.updated_at?'eq.'+encodeURIComponent(existing.updated_at):'is.null');
+ const request=()=>fetch(c.url+'/rest/v1/agenda_events'+query,{method,headers:{...sbHeaders(),Prefer:'return=representation'},...(row?{body:JSON.stringify(row)}:{})});
+ let response=await request();
+ if(response.status===401){await sbRefreshSession(true);response=await request();}
+ if(!response.ok)throw Error(method+' '+response.status+': '+await response.text());
+ const result=await response.json();
+ if(!result.length)throw Error('Η εγγραφή άλλαξε σε άλλη συσκευή. Οι τοπικές αλλαγές διατηρήθηκαν· χρειάζεται έλεγχος στο Sync.');
+ return result;
 }
 async function cloudSave(silent=false){
-  if(sbSyncBusy){sbSyncQueued=true;return;}
-  try{
-    sbSyncBusy=true;
-    clearTimeout(sbAutoTimer); sbAutoTimer=null;
-    sbRemember();
-    await sbEnsureSession();
-    const c=sbCfg();
-    if(!silent)sbMsg('Αποθήκευση...');
-    const sources=[SB_SOURCE_ACTIVE,SB_SOURCE_ARCHIVE,SB_SOURCE_PERFORMED];
-    for(const source of sources){
-      let r=await fetch(c.url+'/rest/v1/agenda_events?source=eq.'+encodeURIComponent(source),{method:'DELETE',headers:sbHeaders()});
-      if(r.status===401){
-        await sbRefreshSession(true);
-        r=await fetch(c.url+'/rest/v1/agenda_events?source=eq.'+encodeURIComponent(source),{method:'DELETE',headers:sbHeaders()});
-      }
-      if(!r.ok)throw new Error('DELETE '+r.status+': '+await r.text());
-    }
-    const rows=sbLocalRows();
-    if(rows.length){
-      let r=await fetch(c.url+'/rest/v1/agenda_events',{method:'POST',headers:sbHeaders(),body:JSON.stringify(rows)});
-      if(r.status===401){
-        await sbRefreshSession(true);
-        r=await fetch(c.url+'/rest/v1/agenda_events',{method:'POST',headers:sbHeaders(),body:JSON.stringify(rows)});
-      }
-      if(!r.ok)throw new Error('INSERT '+r.status+': '+await r.text());
-    }
-    sbLastCloudFingerprint=sbFingerprint(rows);
-    sbLocalDirty=false;
-    localStorage.setItem('academicAgendaLastCloudSync',new Date().toISOString());
-    if(!silent)sbMsg('✓ Αποθηκεύτηκαν '+rows.length+' εγγραφές. Auto Sync ενεργό.');
-    startCloudPolling();
-  }catch(e){
-    if(!silent)sbMsg('✗ '+e.message,false);
-    console.error('Cloud sync:',e);
-  }finally{
-    sbSyncBusy=false;
-    if(sbSyncQueued){sbSyncQueued=false;scheduleAutoSync();}
+ if(sbSyncBusy){sbSyncQueued=true;return;}
+ if(sbReviewBlocked){sbMsg('Οι τοπικές εγγραφές διατηρήθηκαν. Στο Sync χρειάζεται Backup και έλεγχος πριν τη φόρτωση από cloud.',false);return;}
+ let success=false;
+ try{
+  sbSyncBusy=true;clearTimeout(sbAutoTimer);sbAutoTimer=null;sbRemember();
+  const local=sbLocalRows(),before=sbBaseRows.slice(),remote=await sbFetchCloudRows();
+  const base=new Map(before.map(r=>[sbKeyOf(r),r])),localMap=new Map(local.map(r=>[sbKeyOf(r),r])),remoteMap=new Map();
+  for(const r of remote){
+    const key=sbKeyOf(r);
+    if(remoteMap.has(key))throw Error('Υπάρχουν διπλές εγγραφές στο cloud. Οι εγγραφές διατηρήθηκαν· απαιτείται έλεγχος.');
+    remoteMap.set(key,r);
   }
+  const changes=local.filter(r=>!sbSame(r,base.get(sbKeyOf(r))));
+  const removed=before.filter(r=>!localMap.has(sbKeyOf(r)));
+  // Check all conflicts before writing any row.
+  for(const r of [...changes,...removed]){
+    const key=sbKeyOf(r),cloud=remoteMap.get(key),old=base.get(key);
+    if(cloud&&!sbSame(cloud,old)&&!sbSame(cloud,localMap.get(key)))throw Error('Το ίδιο γεγονός άλλαξε και σε άλλη συσκευή. Πάρε Backup και έλεγξε τη φόρτωση στο Sync.');
+    if(!cloud&&old?.id&&localMap.has(key))throw Error('Το γεγονός αφαιρέθηκε από άλλη συσκευή. Οι τοπικές αλλαγές διατηρήθηκαν.');
+  }
+  // Persist successful progress so a partial network failure can safely resume.
+  const progress=new Map(before.map(r=>[sbKeyOf(r),r]));
+  for(const r of changes){
+    const key=sbKeyOf(r),existing=remoteMap.get(key);
+    const saved=sbSame(r,existing)?existing:(await sbWrite(existing?'PATCH':'POST',r,existing))[0];
+    progress.set(key,saved);remoteMap.set(key,saved);sbSetBase([...progress.values()]);
+  }
+  // Physical deletes only target specific previously known archive/performed rows.
+  // Calendar deletions use persistent tombstones, including the last event.
+  for(const r of removed){
+    const key=sbKeyOf(r),existing=remoteMap.get(key);
+    if(existing)await sbWrite('DELETE',null,existing);
+    remoteMap.delete(key);progress.delete(key);sbSetBase([...progress.values()]);
+  }
+  const merged=[...remoteMap.values()];
+  const editedDuringSave=sbFingerprint(sbLocalRows())!==sbFingerprint(local);
+  sbLastCloudFingerprint=sbFingerprint(merged);
+  if(!editedDuringSave){sbApplyRows(merged);sbLocalDirty=false;}
+  else{sbLocalDirty=true;sbSyncQueued=true;}
+  localStorage.setItem('academicAgendaLastCloudSync',new Date().toISOString());
+  sbMsg('✓ Οι αλλαγές συγχρονίστηκαν.');startCloudPolling();success=true;
+ }catch(e){sbLocalDirty=true;sbMsg('✗ '+e.message,false);console.error('Cloud sync:',e);}
+ finally{
+  sbSyncBusy=false;
+  if(sbSyncQueued&&success){sbSyncQueued=false;scheduleAutoSync();}
+ }
 }
 async function cloudLoad(ask=true){
-  try{
-    sbRemember();
-    if(ask&&!confirm('Η φόρτωση από Supabase θα αντικαταστήσει την τρέχουσα τοπική κατάσταση. Συνέχεια;'))return;
-    sbMsg('Φόρτωση...');
-    const rows=await sbFetchCloudRows();
-    if(!rows.length){sbMsg('Cloud κενό — τα τοπικά δεδομένα δεν άλλαξαν.');return;}
-    sbApplyRows(rows,false);
-    sbLastCloudFingerprint=sbFingerprint(rows);
-    localStorage.setItem('academicAgendaLastCloudSync',new Date().toISOString());
-    sbMsg('✓ Φορτώθηκαν '+rows.length+' εγγραφές. Auto Sync ενεργό.');
-    startCloudPolling();
-  }catch(e){sbMsg('✗ '+e.message,false);}
+ if(sbSyncBusy){sbMsg('Ο συγχρονισμός βρίσκεται σε εξέλιξη. Δοκίμασε ξανά σε λίγο.');return;}
+ if(ask&&!confirm('Η φόρτωση από Supabase θα αντικαταστήσει την τρέχουσα τοπική κατάσταση. Συνέχεια;'))return;
+ sbSyncBusy=true;
+ try{
+  sbRemember();sbMsg('Φόρτωση…');
+  const before=sbFingerprint(sbLocalRows()),rows=await sbFetchCloudRows();
+  if(sbFingerprint(sbLocalRows())!==before)throw Error('Έγιναν αλλαγές όσο φόρτωνε το cloud. Η τοπική κατάσταση διατηρήθηκε.');
+  if(!rows.length){sbMsg('Cloud κενό — τα τοπικά δεδομένα δεν άλλαξαν.');return;}
+  clearTimeout(sbAutoTimer);sbAutoTimer=null;sbSyncQueued=false;
+  sbApplyRows(rows);sbLastCloudFingerprint=sbFingerprint(rows);
+  localStorage.setItem('academicAgendaLastCloudSync',new Date().toISOString());
+  sbMsg('✓ Φορτώθηκαν '+rows.length+' εγγραφές.');startCloudPolling();
+ }catch(e){sbMsg('✗ '+e.message,false);}
+ finally{sbSyncBusy=false;if(sbSyncQueued){sbSyncQueued=false;scheduleAutoSync();}}
 }
 function scheduleAutoSync(){
   if(sbApplyingRemote || !localStorage.getItem('academicAgendaSbToken'))return;
@@ -1058,14 +1134,50 @@ Storage.prototype.setItem=function(k,v){
   if(this===localStorage && /^academicAgenda(Custom|States|DefaultEdits|Undo|Archive|Performed)$/.test(k) && !sbApplyingRemote) scheduleAutoSync();
 };
 window.addEventListener('online',()=>{scheduleAutoSync();startCloudPolling();});
-window.addEventListener('offline',()=>stopCloudPolling());
+window.addEventListener('offline',()=>{stopCloudPolling();sbMsg('Εκτός σύνδεσης — οι αλλαγές αποθηκεύονται τοπικά.',false);});
 
+for(const a of performed){
+ const e=allEvents().find(e=>e.id===a.id);
+ if(e&&!e.deleted&&e.status!=='Ακυρώθηκε'&&e.status!=='Αναβλήθηκε')putEvent({...e,status:'Ολοκληρώθηκε'});
+}
 saveDailySnapshot();
 render();
 
-if(sbAuthCapturedFromUrl){
-  setTimeout(()=>cloudLoad(false),250);
-}else if(localStorage.getItem('academicAgendaSbToken')){
-  setTimeout(async()=>{try{await sbEnsureSession();const rows=await sbFetchCloudRows();if(rows.length)sbLastCloudFingerprint=sbFingerprint(rows);startCloudPolling();}catch(e){console.error('Initial cloud session:',e);}},500);
+async function initializeCloudSync(){
+ try{
+  await sbEnsureSession();
+  if(sbFirstUpgrade){
+   const remote=await sbFetchCloudRows();
+   if(remote.length){
+    const remoteMap=new Map(remote.map(r=>[sbKeyOf(r),r]));
+    const completedIds=new Set(remote.filter(r=>r.source===SB_SOURCE_PERFORMED).map(r=>r.source_reference));
+    const different=sbLocalRows().some(r=>{
+      const cloud=remoteMap.get(sbKeyOf(r));if(!cloud)return true;
+      const a=sbComparableRow(r),b=sbComparableRow(cloud);
+      // v3.17 did not retain completion metadata; preserve it locally.
+      if(r.source===SB_SOURCE_PERFORMED){delete a.recurrence_rule;delete b.recurrence_rule;}
+      if(r.source===SB_SOURCE_ACTIVE&&completedIds.has(r.source_reference)){
+        a.status=b.status='Ολοκληρώθηκε';a.completed=b.completed=true;
+      }
+      return JSON.stringify(a)!==JSON.stringify(b);
+    });
+    if(different){
+      sbReviewBlocked=true;sbLocalDirty=true;
+      localStorage.setItem('academicAgendaSyncReviewBlocked','true');
+      sbMsg('Η πρώτη μετάβαση εντόπισε διαφορές PC/cloud. Οι τοπικές εγγραφές διατηρήθηκαν. Πάρε Backup και έλεγξε το Sync πριν επιλέξεις Φόρτωση.',false);
+      return;
+    }
+   }
+  }
+  const local=sbLocalRows(),dirty=sbFingerprint(local)!==sbFingerprint(sbBaseRows);
+  if(dirty){sbLocalDirty=true;await cloudSave(true);}
+  else{
+   const before=sbFingerprint(sbLocalRows()),rows=await sbFetchCloudRows();
+   if(sbFingerprint(sbLocalRows())!==before){sbLocalDirty=true;scheduleAutoSync();return;}
+   if(rows.length){sbApplyRows(rows);sbLastCloudFingerprint=sbFingerprint(rows);}
+   startCloudPolling();
+  }
+ }catch(e){sbMsg('✗ '+e.message,false);}
 }
+if(sbAuthCapturedFromUrl||localStorage.getItem('academicAgendaSbToken'))setTimeout(initializeCloudSync,500);
 </script></body></html>
